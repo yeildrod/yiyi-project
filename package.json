@@ -1,0 +1,24 @@
+{
+    "name": "binance-auto-trading",
+    "version": "1.0.0",
+    "description": "可训练的币安虚拟货币自动交易系统",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "start": "node index.js",
+        "train": "node training/trainer.js"
+    },
+    "dependencies": {
+        "@tensorflow/tfjs": "^4.22.0",
+        "binance-api-node": "^0.13.8",
+        "brain.js": "^2.0.0-beta.24",
+        "dotenv": "^16.3.1",
+        "express": "^4.18.2",
+        "lodash": "^4.17.21",
+        "mongoose": "^7.5.0",
+        "node-fetch": "^3.3.2",
+        "redis": "^5.11.0",
+        "technicalindicators": "^3.1.0",
+        "ws": "^8.14.2"
+    }
+}
