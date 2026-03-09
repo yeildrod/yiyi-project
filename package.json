@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "可训练的币安虚拟货币自动交易系统",
     "main": "index.js",
-    "type": "module",
+   "type": "module",
     "scripts": {
         "start": "node index.js",
         "train": "node training/trainer.js"

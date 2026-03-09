@@ -1,7 +1,12 @@
-import Binance from 'binance-api-node';
+import { createRequire} from 'module';
+const require = createRequire(import.meta.url)
+const Binance = require('binance-api-node').default;
 import { createClient } from 'redis';
 import { config } from '../config.js';
 import TechnicalIndicators from 'technicalindicators';
+
+
+// console.log(process.env);
 
 export class DataCollector {
   constructor() {

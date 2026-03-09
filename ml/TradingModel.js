@@ -1,5 +1,5 @@
-import * as tf from '@tensorflow/tfjs-node';
-import { createModel } from 'brain.js';
+import * as tf from '@tensorflow/tfjs';
+const { createModel } = 'brain.js';
 
 export class TradingModel {
   constructor(inputSize = 10, outputSize = 3) {
