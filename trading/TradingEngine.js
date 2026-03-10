@@ -2,7 +2,8 @@ import { createRequire} from 'module';
 const require = createRequire(import.meta.url);
 const Binance = require('binance-api-node').default;
 import { EventEmitter } from 'events';
-import { config } from '../config.js';//
+import { config } from '../config.js';
+const { HttpsProxyAgent } = require('https-proxy-agent');
 
 export class TradingEngine extends EventEmitter {
   constructor(model, initialCapital = 1000) {
@@ -10,7 +11,9 @@ export class TradingEngine extends EventEmitter {
     this.client = Binance({
       apiKey: config.binance.apiKey,
       apiSecret: config.binance.apiSecret,
-      testnet: config.binance.testnet
+      testnet: config.binance.testnet,
+      httpAgent: new HttpsProxyAgent('http://127.0.0.1:7890'),
+      httpBase: 'https://data-api.binance.vision'       
     });
     this.model = model;
     this.capital = initialCapital;

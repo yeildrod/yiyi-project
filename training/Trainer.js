@@ -2,6 +2,7 @@ import { DataCollector } from '../data/DataCollector.js';
 import { TradingModel } from '../ml/TradingModel.js';
 import mongoose from 'mongoose';
 import { config } from '../config.js';
+import path from 'path';
 
 export class Trainer {
   constructor() {
@@ -22,14 +23,13 @@ export class Trainer {
 
   async trainModel() {
     console.log('开始训练模型...');
-    
+    const startTime=Date.now();//开始时间
     // 1. 收集数据
     const historicalData = await this.dataCollector.fetchHistoricalData(
       config.trading.symbol,
       config.trading.timeframe,
-      1000
+      100 //limit
     );
-    
     console.log(`收集到 ${historicalData.length} 条历史数据`);
     
     // 2. 创建并训练模型
@@ -37,16 +37,21 @@ export class Trainer {
     const history = await this.model.train(historicalData, 50, 32);
     
     // 3. 保存模型
-    await this.model.saveModel('./models/latest');
+    
+    await this.model.saveModel('file:///CODE/autotrade/models/latest');
     console.log('模型训练完成并保存');
     
     // 4. 保存训练记录
-    await this.saveTrainingRecord(history);
+    const endTime = Date.now();
+    const duration = endTime - startTime; // 2. 計算時長（毫秒）
+
+    // 3. 將時長傳遞給保存方法
+    await this.saveTrainingRecord(history, duration);
     
     return history;
   }
 
-  async saveTrainingRecord(history) {
+  async saveTrainingRecord(history,duration) {
     const trainingSchema = new mongoose.Schema({
       timestamp: Date,
       symbol: String,
@@ -59,7 +64,7 @@ export class Trainer {
     
     const TrainingRecord = mongoose.models.TrainingRecord || 
       mongoose.model('TrainingRecord', trainingSchema);
-    
+    console.log(history)
     const record = new TrainingRecord({
       timestamp: new Date(),
       symbol: config.trading.symbol,
@@ -67,7 +72,7 @@ export class Trainer {
       epochs: history.params.epochs,
       finalLoss: history.history.loss[history.history.loss.length - 1],
       finalAccuracy: history.history.acc[history.history.acc.length - 1],
-      trainingTime: Date.now() - history.startTime
+      trainingTime: duration
     });
     
     await record.save();

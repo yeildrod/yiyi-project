@@ -4,7 +4,7 @@ const Binance = require('binance-api-node').default;
 import { createClient } from 'redis';
 import { config } from '../config.js';
 import TechnicalIndicators from 'technicalindicators';
-
+const { HttpsProxyAgent } = require('https-proxy-agent');
 
 // console.log(process.env);
 
@@ -13,7 +13,9 @@ export class DataCollector {
     this.client = Binance({
       apiKey: config.binance.apiKey,
       apiSecret: config.binance.apiSecret,
-      testnet: config.binance.testnet
+      testnet: config.binance.testnet,
+      httpAgent: new HttpsProxyAgent('http://127.0.0.1:7890'),
+      httpBase: 'https://data-api.binance.vision' 
     });
     this.redis = createClient(config.redis);
     this.redis.connect();
@@ -25,7 +27,7 @@ export class DataCollector {
       interval,
       limit
     });
-    
+    console.log(`API 返回了 ${candles.length} 条 K 线数据`); 
     const formattedData = candles.map(candle => ({
       timestamp: new Date(candle.openTime),
       open: parseFloat(candle.open),

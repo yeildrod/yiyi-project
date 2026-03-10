@@ -147,6 +147,7 @@ class AutoTradingSystem {
 
   async train() {
     console.log('开始训练...');
+    await this.trainer.connectDB();
     await this.trainer.trainModel();
     await this.loadModel();
     console.log('训练完成，模型已重新加载');

@@ -1,5 +1,12 @@
 import * as tf from '@tensorflow/tfjs';
+import '@tensorflow/tfjs-node/dist/io/file_system.js'; 
 const { createModel } = 'brain.js';
+import { nodeFileSystemRouter } from '@tensorflow/tfjs-node/dist/io/file_system.js';
+
+// 手动将 file:// 协议挂载到 TensorFlow 的 IO 路由中
+tf.io.registerSaveRouter(nodeFileSystemRouter);
+tf.io.registerLoadRouter(nodeFileSystemRouter);
+import { pathToFileURL } from 'url';
 
 export class TradingModel {
   constructor(inputSize = 10, outputSize = 3) {
@@ -15,7 +22,7 @@ export class TradingModel {
     // LSTM层处理时间序列数据
     model.add(tf.layers.lstm({
       units: 64,
-      inputShape: [this.inputSize, 1],
+      inputShape: [this.inputSize, 10],
       returnSequences: true
     }));
     
@@ -59,7 +66,7 @@ export class TradingModel {
   prepareData(data, lookback = 10) {
     const sequences = [];
     const labels = [];
-    
+    // const shape = [2,2,2];
     // 创建特征序列
     for (let i = lookback; i < data.length; i++) {
       const sequence = [];
@@ -81,7 +88,7 @@ export class TradingModel {
         labels.push(label);
       }
     }
-    
+
     return {
       sequences: tf.tensor3d(sequences),
       labels: tf.oneHot(tf.tensor1d(labels, 'int32'), this.outputSize)
@@ -104,8 +111,8 @@ export class TradingModel {
   }
 
   async train(data, epochs = 100, batchSize = 32) {
+    console.log(data);
     const { sequences, labels } = this.prepareData(data);
-    
     const history = await this.model.fit(sequences, labels, {
       epochs,
       batchSize,
@@ -141,7 +148,7 @@ export class TradingModel {
   }
 
   async saveModel(path) {
-    await this.model.save(`file://${path}`);
+    await this.model.save(path);
   }
 
   async loadModel(path) {
